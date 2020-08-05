@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -30,17 +31,22 @@ import com.salesmanager.shop.model.catalog.category.Category;
 import com.salesmanager.shop.model.catalog.category.CategoryDescription;
 import com.salesmanager.shop.model.catalog.category.PersistableCategory;
 
+import com.shopizer.inventory.csv.in.PropertyManage;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 
 public class CategoryImport {
 	private static final Logger LOG = LogManager.getLogger(CategoryImport.class);
-	
-	private String FILE_NAME = "/Users/carlsamson/Documents/dev/workspaces/shopizer-inventoty-xls/shopizer-inventory-csv/src/main/resources/category-loader.csv";
+    private static Properties mProps;
+
+	private static String FILE_NAME; // = "/Users/carlsamson/Documents/dev/workspaces/shopizer-inventoty-xls/shopizer-inventory-csv/src/main/resources/category-loader.csv";
 	
 
 	public static void main(String[] args) {
+		mProps = PropertyManage.getInstance().getProperties();
+		FILE_NAME = mProps.getProperty("category.file");
 		
 		CategoryImport categoryImport = new CategoryImport();
 		try {
