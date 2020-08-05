@@ -23,11 +23,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.client.RestTemplate;
 
-import com.salesmanager.web.entity.catalog.category.Category;
-import com.salesmanager.web.entity.catalog.category.CategoryDescription;
-import com.salesmanager.web.entity.catalog.category.PersistableCategory;
+//import com.salesmanager.web.entity.catalog.category.Category;
+//import com.salesmanager.web.entity.catalog.category.CategoryDescription;
+//import com.salesmanager.web.entity.catalog.category.PersistableCategory;
+import com.salesmanager.shop.model.catalog.category.Category;
+import com.salesmanager.shop.model.catalog.category.CategoryDescription;
+import com.salesmanager.shop.model.catalog.category.PersistableCategory;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 
 public class CategoryImport {
+	private static final Logger LOG = LogManager.getLogger(CategoryImport.class);
 	
 	private String FILE_NAME = "/Users/carlsamson/Documents/dev/workspaces/shopizer-inventoty-xls/shopizer-inventory-csv/src/main/resources/category-loader.csv";
 	
@@ -38,12 +46,16 @@ public class CategoryImport {
 		try {
 			categoryImport.importCategory();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
+			LOG.error(e);
 		}
 
 	}
 	
+	/**
+	 * 
+	 * @throws Exception
+	 */
 	public void importCategory() throws Exception {
 		
 		RestTemplate restTemplate = new RestTemplate();
@@ -73,16 +85,16 @@ public class CategoryImport {
 			}
 			
 			
-			System.out.println(record.get("code"));
-			System.out.println(record.get("name_en"));
-			System.out.println(record.get("name_fr"));
-			System.out.println(record.get("title_en"));
-			System.out.println(record.get("title_fr"));
-			System.out.println(record.get("friendlyUrl_en"));
-			System.out.println(record.get("friendlyUrl_fr"));
-			System.out.println(record.get("position"));
-			System.out.println(record.get("visible"));
-			System.out.println(record.get("parent"));
+			LOG.debug(record.get("code"));
+			LOG.debug(record.get("name_en"));
+			LOG.debug(record.get("name_fr"));
+			LOG.debug(record.get("title_en"));
+			LOG.debug(record.get("title_fr"));
+			LOG.debug(record.get("friendlyUrl_en"));
+			LOG.debug(record.get("friendlyUrl_fr"));
+			LOG.debug(record.get("position"));
+			LOG.debug(record.get("visible"));
+			LOG.debug(record.get("parent"));
 			
 			//core properties
 			PersistableCategory category = new PersistableCategory();
@@ -94,6 +106,7 @@ public class CategoryImport {
 			
 			//add english description
 			CategoryDescription description = new CategoryDescription();
+			
 			description.setLanguage("en");
 			description.setTitle(record.get("title_en"));
 			description.setName(record.get("name_en"));
@@ -129,7 +142,7 @@ public class CategoryImport {
 			
 			
 			
-			System.out.println("---------------------");
+			LOG.info("---------------------");
 			i++;//rows
 		}
 		
@@ -157,13 +170,16 @@ public class CategoryImport {
 		}
 		
      
-		System.out.println("------------------------------------");
-		System.out.println("Category import done");
-		System.out.println("------------------------------------");
+		LOG.info("------------------------------------");
+		LOG.info("Category import done");
+		LOG.info("------------------------------------");
 		
 	}
 	
-	
+	/**
+	 * Формирует заголовок API запроса с данными авторизации
+	 * @return
+	 */
 	private HttpHeaders getHeader(){
 		HttpHeaders headers = new HttpHeaders();
 		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
