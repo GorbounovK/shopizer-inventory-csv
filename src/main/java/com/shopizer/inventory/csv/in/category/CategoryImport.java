@@ -43,8 +43,7 @@ public class CategoryImport {
 	private static Properties mProps;
 	private static String baseUrl;
 
-	private static String FILE_NAME; // =
-										// "/Users/carlsamson/Documents/dev/workspaces/shopizer-inventoty-xls/shopizer-inventory-csv/src/main/resources/category-loader.csv";
+	private static String FILE_NAME; 
 	private String langs[] = { "en", "ru" };
 
 	public static void main(String[] args) {
