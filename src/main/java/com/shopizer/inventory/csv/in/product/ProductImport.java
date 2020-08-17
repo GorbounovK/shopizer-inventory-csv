@@ -222,9 +222,9 @@ public class ProductImport {
 			//sizes are required when loading a product
 			String dimensions = record.get("dimensions");
 			
-			String W = convertDimension(record.get("width"),dimensions).toString();
-			String L = convertDimension(record.get("length"),dimensions).toString();
-			String H = convertDimension(record.get("length"),dimensions).toString();
+//			String W = convertDimension(record.get("width"),dimensions).toString();
+//			String L = convertDimension(record.get("length"),dimensions).toString();
+//			String H = convertDimension(record.get("length"),dimensions).toString();
 			
 			specs.setHeight(convertDimension(record.get("height"),dimensions));
 			specs.setWidth(convertDimension(record.get("width"),dimensions));

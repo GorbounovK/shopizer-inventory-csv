@@ -21,8 +21,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.client.RestTemplate;
 
-import com.salesmanager.web.entity.catalog.manufacturer.ManufacturerDescription;
-import com.salesmanager.web.entity.catalog.manufacturer.PersistableManufacturer;
+//import com.salesmanager.web.entity.catalog.manufacturer.ManufacturerDescription;
+//import com.salesmanager.web.entity.catalog.manufacturer.PersistableManufacturer;
+import com.salesmanager.shop.model.catalog.manufacturer.ManufacturerDescription;
+import com.salesmanager.shop.model.catalog.manufacturer.PersistableManufacturer;
 
 public class ManufacturerImport {
 

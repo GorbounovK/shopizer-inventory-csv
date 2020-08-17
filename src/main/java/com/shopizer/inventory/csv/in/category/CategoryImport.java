@@ -19,10 +19,12 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.codec.Base64;
 import org.springframework.web.client.RestTemplate;
+import com.salesmanager.shop.model.entity.EntityExists;
 
 //import com.salesmanager.web.entity.catalog.category.Category;
 //import com.salesmanager.web.entity.catalog.category.CategoryDescription;
@@ -36,166 +38,182 @@ import com.shopizer.inventory.csv.in.PropertyManage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-
 public class CategoryImport {
 	private static final Logger LOG = LogManager.getLogger(CategoryImport.class);
-    private static Properties mProps;
+	private static Properties mProps;
+	private static String baseUrl;
 
-	private static String FILE_NAME; // = "/Users/carlsamson/Documents/dev/workspaces/shopizer-inventoty-xls/shopizer-inventory-csv/src/main/resources/category-loader.csv";
-	
+	private static String FILE_NAME; // =
+										// "/Users/carlsamson/Documents/dev/workspaces/shopizer-inventoty-xls/shopizer-inventory-csv/src/main/resources/category-loader.csv";
+	private String langs[] = { "en", "ru" };
 
 	public static void main(String[] args) {
 		mProps = PropertyManage.getInstance().getProperties();
+		LOG.debug(mProps.toString());
+
 		FILE_NAME = mProps.getProperty("category.file");
-		
+		baseUrl = mProps.getProperty("serverAPI.baseUrl");
+
 		CategoryImport categoryImport = new CategoryImport();
 		try {
 			categoryImport.importCategory();
 		} catch (Exception e) {
-			//e.printStackTrace();
+			// e.printStackTrace();
 			LOG.error(e);
 		}
 
 	}
-	
+
+	/**
+	 * Формирует заголовок API запроса с данными авторизации
+	 * 
+	 * @return
+	 */
+	private HttpHeaders getHeader() {
+		HttpHeaders headers = new HttpHeaders();
+		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
+		// MediaType.APPLICATION_JSON //for application/json
+		headers.setContentType(mediaType);
+		// Basic Authentication
+		// String authorisation = "admin" + ":" + "Montreal2016!";
+		String authorisation = mProps.getProperty("serverAPI.user") + ":" + mProps.getProperty("serverAPI.password");
+		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
+		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
+		return headers;
+	}
+
 	/**
 	 * 
 	 * @throws Exception
 	 */
 	public void importCategory() throws Exception {
-		
+
 		RestTemplate restTemplate = new RestTemplate();
-		
-		CSVFormat format = CSVFormat.EXCEL.withHeader().withDelimiter(',');
 
+		CSVFormat format = CSVFormat.EXCEL.withHeader().withDelimiter(';');
 
-		
 		BufferedReader in = new BufferedReader(
-				   new InputStreamReader(
-		                      new FileInputStream(FILE_NAME), StandardCharsets.ISO_8859_1));
-		
-		//new FileReader(fileName)
-		
-		@SuppressWarnings("resource")
-		CSVParser parser = new CSVParser(in,format);
+				new InputStreamReader(new FileInputStream(FILE_NAME), StandardCharsets.UTF_8));
 
-		Map<String,PersistableCategory> categoryMap = new HashMap<String,PersistableCategory>();
+		// new FileReader(fileName)
+
+//		@SuppressWarnings("resource")
+		CSVParser parser = new CSVParser(in, format);
+
+		Map<String, PersistableCategory> categoryMap = new HashMap<String, PersistableCategory>();
 
 		int i = 0;
-		//for (CSVRecord record : records) {
-		for(CSVRecord record : parser){
-		    //String lastName = record.get("Last Name");
-		    //String firstName = record.get("First Name");
-			if(StringUtils.isBlank(record.get("code"))) {
+		for (CSVRecord record : parser) {
+			String code = record.get("code");
+
+			if (StringUtils.isBlank(code)) {
+				// пропускаем строки без кода
+				LOG.info("Skipping line " + i);
+				i++;
 				continue;
 			}
-			
-			
-			LOG.debug(record.get("code"));
-			LOG.debug(record.get("name_en"));
-			LOG.debug(record.get("name_fr"));
-			LOG.debug(record.get("title_en"));
-			LOG.debug(record.get("title_fr"));
-			LOG.debug(record.get("friendlyUrl_en"));
-			LOG.debug(record.get("friendlyUrl_fr"));
-			LOG.debug(record.get("position"));
-			LOG.debug(record.get("visible"));
-			LOG.debug(record.get("parent"));
-			
-			//core properties
+
+			// core properties
 			PersistableCategory category = new PersistableCategory();
 			category.setCode(record.get("code"));
 			category.setSortOrder(Integer.parseInt(record.get("position")));
-			category.setVisible(Integer.parseInt(record.get("visible"))==1?true:false);
-			
+			category.setVisible(Integer.parseInt(record.get("visible")) == 1 ? true : false);
+
 			List<CategoryDescription> descriptions = new ArrayList<CategoryDescription>();
-			
-			//add english description
-			CategoryDescription description = new CategoryDescription();
-			
-			description.setLanguage("en");
-			description.setTitle(record.get("title_en"));
-			description.setName(record.get("name_en"));
-			description.setDescription(description.getName());
-			description.setFriendlyUrl(record.get("friendlyUrl_en"));
-			description.setHighlights(record.get("highlights_en"));
-			
-			descriptions.add(description);
-			
-			//add french description
-			description = new CategoryDescription();
-			description.setLanguage("fr");
-			description.setTitle(record.get("title_fr"));
-			description.setName(record.get("name_fr"));
-			description.setDescription(description.getName());
-			description.setFriendlyUrl(record.get("friendlyUrl_fr"));
-			description.setHighlights(record.get("highlights_fr"));
-			
-			descriptions.add(description);
+
+			// add english description
+			for (int langLenth = 0; langLenth < langs.length; langLenth++) {
+				CategoryDescription description = new CategoryDescription();
+
+				String lang = langs[langLenth];
+				description.setLanguage(lang);
+				description.setTitle(record.get("title_" + lang));
+				description.setName(record.get("name_" + lang));
+				description.setDescription(description.getName());
+				description.setFriendlyUrl(record.get("friendlyUrl_" + lang));
+				description.setHighlights(record.get("highlights_" + lang));
+
+				descriptions.add(description);
+
+				LOG.trace("для строки=" + i + " записано описание для языка=" + lang);
+			}
 			category.setDescriptions(descriptions);
-			
+			LOG.trace("descriptions:" + descriptions.toString());
+
 			categoryMap.put(category.getCode(), category);
-			
-			if(!StringUtils.isBlank(record.get("parent"))) {
+
+			/*
+			 * родителю прописываем детей
+			 */
+			if (!StringUtils.isBlank(record.get("parent"))) {
 				PersistableCategory parent = categoryMap.get(record.get("parent"));
-				if(parent!=null) {
+				if (parent != null) {
 					Category parentCategory = new Category();
 					parentCategory.setCode(parent.getCode());
 					category.setParent(parentCategory);
 					parent.getChildren().add(category);
 				}
 			}
-			
-			
-			
-			LOG.info("---------------------");
-			i++;//rows
+
+			LOG.trace("---------------------");
+			i++;// rows
 		}
-		
+		LOG.debug("прочитано " + i + " строк");
+		parser.close();
+
 		HttpHeaders httpHeader = getHeader();
-		
-		//now save each category
-		for(PersistableCategory category : categoryMap.values()) {
-			
-			if(category.getParent()==null) {//only root category
-			
+		LOG.debug("Свормирован заголовок авторизации");
+
+		// now save each category
+		int countCreate = 0;
+		int countUpdate = 0;
+		for (PersistableCategory category : categoryMap.values()) {
+
+//			if (category.getParent() == null) {// only root category
+				HttpEntity<String> entityHeader = new HttpEntity<String>(httpHeader);
+
+				LOG.debug("------выгружаем-------");
+				LOG.debug("parent=" + category.getParent());
 				ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
 				String json = writer.writeValueAsString(category);
-				
-				System.out.println(json);
-				
-				
-				HttpEntity<String> entity = new HttpEntity<String>(json, httpHeader);
-	
-				//post to create category web service
-				ResponseEntity response = restTemplate.postForEntity("http://www.exotikmobilier.com/services/private/DEFAULT/category", entity, PersistableCategory.class);
-				PersistableCategory cat = (PersistableCategory) response.getBody();
-				
-			}
-			
+
+				LOG.info(json);
+
+				// проверяем уникальность кода
+				LOG.debug("code=" + category.getCode());
+				ResponseEntity<EntityExists> responseUnique = restTemplate.exchange(
+						baseUrl + "/api/v1/private/category/unique?code=" + category.getCode(), HttpMethod.GET,
+						entityHeader, EntityExists.class);
+
+				LOG.debug("status=" + responseUnique.getStatusCodeValue());
+				LOG.debug("isExists:" + responseUnique.getBody().isExists());
+
+				if (responseUnique.getBody().isExists()) {
+					// категория существует - обновляем
+					LOG.debug("категория code=" + category.getCode() + " существует - обновляем:");
+					countUpdate ++;
+				} else {
+					// категория не существут - создаем
+					LOG.debug("категория code=" + category.getCode() + " не существует - создаем");
+					// post to create category web service
+					HttpEntity<String> entity = new HttpEntity<String>(json, httpHeader);
+
+					ResponseEntity<PersistableCategory> response = restTemplate
+							.postForEntity(baseUrl + "/api/v1/private/category", entity, PersistableCategory.class);
+//					PersistableCategory cat = (PersistableCategory) response.getBody();
+					LOG.debug("Код возврата = " + response.getStatusCodeValue());
+					countCreate++;
+				}
+				LOG.info("-------------- создано="+countCreate+", обновлено="+countUpdate+" ----------------");
+
+//			}
+
 		}
-		
-     
+
 		LOG.info("------------------------------------");
 		LOG.info("Category import done");
 		LOG.info("------------------------------------");
-		
-	}
-	
-	/**
-	 * Формирует заголовок API запроса с данными авторизации
-	 * @return
-	 */
-	private HttpHeaders getHeader(){
-		HttpHeaders headers = new HttpHeaders();
-		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
-		//MediaType.APPLICATION_JSON //for application/json
-		headers.setContentType(mediaType);
-		//Basic Authentication
-		String authorisation = "admin" + ":" + "Montreal2016!";
-		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
-		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
-		return headers;
+
 	}
 
 }
