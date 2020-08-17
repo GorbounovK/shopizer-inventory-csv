@@ -191,6 +191,7 @@ public class CategoryImport {
 				if (responseUnique.getBody().isExists()) {
 					// категория существует - обновляем
 					LOG.debug("категория code=" + category.getCode() + " существует - обновляем:");
+					
 					countUpdate ++;
 				} else {
 					// категория не существут - создаем
