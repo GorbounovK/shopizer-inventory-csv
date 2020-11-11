@@ -1,0 +1,17 @@
+h1 {
+    color:#0000FF;
+    background-color: pink;
+}
+
+h2 {
+    color:#FF0000;
+    background-color: pink;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+table th, table td {
+    padding: 5px;
+}

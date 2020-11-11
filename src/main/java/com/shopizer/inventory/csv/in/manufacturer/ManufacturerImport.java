@@ -168,10 +168,8 @@ public class ManufacturerImport {
 	private HttpHeaders getHeader() {
 		HttpHeaders headers = new HttpHeaders();
 		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
-		// MediaType.APPLICATION_JSON //for application/json
 		headers.setContentType(mediaType);
 		// Basic Authentication
-//		String authorisation = "admin" + ":" + "Montreal2016!";
 		String authorisation = mProps.getProperty("serverAPI.user") + ":" + mProps.getProperty("serverAPI.password");
 		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
 		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
