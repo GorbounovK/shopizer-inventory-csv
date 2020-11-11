@@ -6,3 +6,6 @@
 /.attach_pid202262
 /.attach_pid285257
 /.classpath
+/logs/
+/lib/
+/start.sh
