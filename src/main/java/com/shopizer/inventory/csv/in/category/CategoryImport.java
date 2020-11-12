@@ -6,23 +6,24 @@ import java.io.InputStreamReader;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
-
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectWriter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.codec.Base64;
+//import org.springframework.security.crypto.codec.Base64;
+import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import com.salesmanager.shop.model.entity.EntityExists;
 
@@ -32,33 +33,40 @@ import com.salesmanager.shop.model.entity.EntityExists;
 import com.salesmanager.shop.model.catalog.category.Category;
 import com.salesmanager.shop.model.catalog.category.CategoryDescription;
 import com.salesmanager.shop.model.catalog.category.PersistableCategory;
+import com.salesmanager.shop.model.catalog.category.ReadableCategoryList;
 
-import com.shopizer.inventory.csv.in.PropertyManage;
+import lombok.extern.log4j.Log4j2;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
+@Log4j2
+@Component
 public class CategoryImport {
-	private static final Logger LOG = LogManager.getLogger(CategoryImport.class);
-	private static Properties mProps;
-	private static String baseUrl;
-
+//	private static final Logger LOG = LogManager.getLogger(CategoryImport.class);
+//	private static Properties mProps;
+    @Value("${serverAPI.baseUrl}")	
+	private String baseUrl;
+    @Value("${serverAPI.user}")	
+    private String serverAPIUser;
+    @Value("${serverAPI.password}")	
+    private String serverAPIPassword;
+    
+    @Value("${category.file}")	
 	private static String FILE_NAME; 
 	private String langs[] = { "en", "ru" };
 
-	public static void main(String[] args) {
-		mProps = PropertyManage.getInstance().getProperties();
-		LOG.debug(mProps.toString());
+	
+	public void main(String[] args) {
+//		mProps = PropertyManage.getInstance().getProperties();
+		log.trace("baseUrl="+baseUrl+";"+"serverAPIUser="+serverAPIUser);
 
-		FILE_NAME = mProps.getProperty("category.file");
-		baseUrl = mProps.getProperty("serverAPI.baseUrl");
+//		FILE_NAME = mProps.getProperty("category.file");
+//		baseUrl = mProps.getProperty("serverAPI.baseUrl");
 
 		CategoryImport categoryImport = new CategoryImport();
 		try {
 			categoryImport.importCategory();
 		} catch (Exception e) {
 			// e.printStackTrace();
-			LOG.error(e);
+			log.error(e);
 		}
 
 	}
@@ -69,14 +77,20 @@ public class CategoryImport {
 	 * @return
 	 */
 	private HttpHeaders getHeader() {
+//		{
+//			  "password": "password",
+//			  "username": "admin@shopizer.com"
+//			}
 		HttpHeaders headers = new HttpHeaders();
 		MediaType mediaType = new MediaType("application", "json", Charset.forName("UTF-8"));
 		// MediaType.APPLICATION_JSON //for application/json
 		headers.setContentType(mediaType);
 		// Basic Authentication
 		// String authorisation = "admin" + ":" + "Montreal2016!";
-		String authorisation = mProps.getProperty("serverAPI.user") + ":" + mProps.getProperty("serverAPI.password");
-		byte[] encodedAuthorisation = Base64.encode(authorisation.getBytes());
+//		String authorisation = mProps.getProperty("serverAPI.user") + ":" + mProps.getProperty("serverAPI.password");
+		String authorisation = serverAPIUser + ":" + serverAPIPassword;
+		
+		byte[] encodedAuthorisation = Base64.getEncoder().encode(authorisation.getBytes());
 		headers.add("Authorization", "Basic " + new String(encodedAuthorisation));
 		return headers;
 	}
@@ -107,7 +121,7 @@ public class CategoryImport {
 
 			if (StringUtils.isBlank(code)) {
 				// пропускаем строки без кода
-				LOG.info("Skipping line " + i);
+				log.info("Skipping line " + i+" пустой код");
 				i++;
 				continue;
 			}
@@ -134,10 +148,10 @@ public class CategoryImport {
 
 				descriptions.add(description);
 
-				LOG.trace("для строки=" + i + " записано описание для языка=" + lang);
+				log.trace("для строки=" + i + " записано описание для языка=" + lang);
 			}
 			category.setDescriptions(descriptions);
-			LOG.trace("descriptions:" + descriptions.toString());
+			log.trace("descriptions:" + descriptions.toString());
 
 			categoryMap.put(category.getCode(), category);
 
@@ -154,14 +168,14 @@ public class CategoryImport {
 				}
 			}
 
-			LOG.trace("---------------------");
+			log.trace("---------------------");
 			i++;// rows
 		}
-		LOG.debug("прочитано " + i + " строк");
+		log.debug("прочитано " + i + " строк");
 		parser.close();
 
 		HttpHeaders httpHeader = getHeader();
-		LOG.debug("Свормирован заголовок авторизации");
+		log.debug("Свормирован заголовок авторизации");
 
 		// now save each category
 		int countCreate = 0;
@@ -171,49 +185,66 @@ public class CategoryImport {
 //			if (category.getParent() == null) {// only root category
 				HttpEntity<String> entityHeader = new HttpEntity<String>(httpHeader);
 
-				LOG.debug("------выгружаем-------");
-				LOG.debug("parent=" + category.getParent());
+				log.debug("------выгружаем-------");
+				log.debug("parent=" + category.getParent());
 				ObjectWriter writer = new ObjectMapper().writer().withDefaultPrettyPrinter();
 				String json = writer.writeValueAsString(category);
 
-				LOG.info(json);
+				log.trace(json);
 
 				// проверяем уникальность кода
-				LOG.debug("code=" + category.getCode());
+				log.debug("code=" + category.getCode());
 				ResponseEntity<EntityExists> responseUnique = restTemplate.exchange(
 						baseUrl + "/api/v1/private/category/unique?code=" + category.getCode(), HttpMethod.GET,
 						entityHeader, EntityExists.class);
 
-				LOG.debug("status=" + responseUnique.getStatusCodeValue());
-				LOG.debug("isExists:" + responseUnique.getBody().isExists());
+				log.debug("status=" + responseUnique.getStatusCodeValue());
+				log.debug("isExists:" + responseUnique.getBody().isExists());
 
 				if (responseUnique.getBody().isExists()) {
 					// категория существует - обновляем
-					LOG.debug("категория code=" + category.getCode() + " существует - обновляем:");
-					
+					log.debug("категория code=" + category.getCode() + " существует - обновляем:");
+					updateCategory(category);
 					countUpdate ++;
 				} else {
 					// категория не существут - создаем
-					LOG.debug("категория code=" + category.getCode() + " не существует - создаем");
+					log.debug("категория code=" + category.getCode() + " не существует - создаем");
 					// post to create category web service
 					HttpEntity<String> entity = new HttpEntity<String>(json, httpHeader);
 
 					ResponseEntity<PersistableCategory> response = restTemplate
 							.postForEntity(baseUrl + "/api/v1/private/category", entity, PersistableCategory.class);
 //					PersistableCategory cat = (PersistableCategory) response.getBody();
-					LOG.debug("Код возврата = " + response.getStatusCodeValue());
+					log.debug("Код возврата = " + response.getStatusCodeValue());
 					countCreate++;
 				}
-				LOG.info("-------------- создано="+countCreate+", обновлено="+countUpdate+" ----------------");
+				log.info("-------------- создано="+countCreate+", обновлено="+countUpdate+" ----------------");
 
 //			}
 
 		}
 
-		LOG.info("------------------------------------");
-		LOG.info("Category import done");
-		LOG.info("------------------------------------");
+		log.info("------------------------------------");
+		log.info("Category import done");
+		log.info("------------------------------------");
 
 	}
 
+	private void updateCategory(PersistableCategory mCategory ) {
+		log.debug(mCategory);
+	}
+
+	public ReadableCategoryList listCategory() {
+		log.trace("------ service listCategory ------");
+//		ReadableCategoryList readableCategoryList;
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders httpHeader = getHeader();
+		HttpEntity<String> entityHeader = new HttpEntity<String>(httpHeader);
+		ResponseEntity<ReadableCategoryList> responseUnique = restTemplate.exchange(
+				baseUrl + "/api/v1/category?count=200&lang=ru" , HttpMethod.GET,
+				entityHeader, ReadableCategoryList.class);
+		log.trace("StatusCode="+responseUnique.getStatusCode());
+		log.trace("RecordsTotal="+responseUnique.getBody().getRecordsTotal());
+		return responseUnique.getBody();
+	}
 }

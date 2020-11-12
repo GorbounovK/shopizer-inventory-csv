@@ -3,12 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Parfumcenter</title>
+<title>Parfumcenter 2013</title>
 
 <link data-th-href="@{/webjars/bulma/0.9.1/css/bulma.css}"
 	rel="stylesheet">
-<link rel="stylesheet"
-	data-th-href="@{/webjars/font-awesome/4.7.0/css/font-awesome.min.css}" />
+<!-- <link rel="stylesheet"
+	data-th-href="@{/webjars/font-awesome/4.7.0/css/font-awesome.min.css}" /> -->
+<script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js"></script>
+
 <link rel="stylesheet" type="text/css" data-th-href="@{/css/style.css}" />
 <!--<script data-th-src="@{/webjars/timeago.js/3.0.0/dist/timeago.js}"></script> -->
 </head>
@@ -60,12 +62,13 @@
 		</div>
 	</section>
 	<section class="section">
-<!-- 		<div class="container">
+		<!-- 		<div class="container">
 			<div class="content">
 				<h1>Parfumcenter2</h1>
 			</div>
 		</div>
- -->		<!--                 <div class="control">
+ -->
+		<!--                 <div class="control">
                                            <textarea class="textarea" rows="20" readonly th:field="*{ipFilter}">This content is readonly</textarea>
                         <textarea class="textarea" rows="10" readonly>содержимое sod.log</textarea>
                 </div>-->
@@ -78,24 +81,43 @@
 				</ul>
 			</div>
 		</div>
-		<div  class="container">
-			<a class="button is-primary" href="categoryDeleteAll">Удалить
-				категории</a>
+		<div class="container">
+			<a class="button is-primary" href="categoryList">Все категории</a> <a
+				class="button is-danger" href="categoryDeleteAll"><span>Delete</span>
+				<span class="icon is-small"> <i class="fas fa-trash"></i>
+			</span></a>
 		</div>
-		<div class="control">
-			<form action="" method="get">
-				<div class="field is-grouped">
-					<div class="control">
-						<button class="button is-link">Submit</button>
-					</div>
-					<div class="field">
-						<p class="control">
-							<button class="button is-link is-light">Cancel</button>
-						</p>
-					</div>
-				</div>
-			</form>
+
+	</section>
+	<section>
+		<div class="container">
+			<table class="table is-hoverable is-fullwidth">
+				<thead>
+					<tr>
+						<th>Code</th>
+						<th>Name</th>
+						<th>id</th>
+						<th>lineage</th>
+						<th><span class="icon is-small"> <i
+								class="fas fa-trash"></i>
+						</span></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr data-th-each="category : ${categoryes}">
+						<td data-th-text="${category.code}"></td>
+						<td><a data-th-href="${category.description.name}">[[${category.description.name}]]</a></td>
+						<td data-th-text="${category.id}"></td>
+						<td data-th-text="${category.lineage}"></td>
+						<td><a data-th-href="@{/delete/{id}(id=${category.id})}"><span class="icon is-small"> <i
+									class="fas fa-trash"></i>
+							</span></a></td>
+					</tr>
+				</tbody>
+			</table>
+
 		</div>
 	</section>
+
 </body>
 </html>
