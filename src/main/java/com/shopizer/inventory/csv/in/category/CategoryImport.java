@@ -33,6 +33,7 @@ import com.salesmanager.shop.model.entity.EntityExists;
 import com.salesmanager.shop.model.catalog.category.Category;
 import com.salesmanager.shop.model.catalog.category.CategoryDescription;
 import com.salesmanager.shop.model.catalog.category.PersistableCategory;
+import com.salesmanager.shop.model.catalog.category.ReadableCategory;
 import com.salesmanager.shop.model.catalog.category.ReadableCategoryList;
 
 import lombok.extern.log4j.Log4j2;
@@ -234,9 +235,8 @@ public class CategoryImport {
 		log.debug(mCategory);
 	}
 
-	public ReadableCategoryList listCategory() {
+	public List<ReadableCategory> listCategory() {
 		log.trace("------ service listCategory ------");
-//		ReadableCategoryList readableCategoryList;
 		RestTemplate restTemplate = new RestTemplate();
 		HttpHeaders httpHeader = getHeader();
 		HttpEntity<String> entityHeader = new HttpEntity<String>(httpHeader);
@@ -245,6 +245,19 @@ public class CategoryImport {
 				entityHeader, ReadableCategoryList.class);
 		log.trace("StatusCode="+responseUnique.getStatusCode());
 		log.trace("RecordsTotal="+responseUnique.getBody().getRecordsTotal());
-		return responseUnique.getBody();
+		return responseUnique.getBody().getCategories();
+	}
+	
+	public void deleteCategory(int id) {
+		log.trace("------ service deleteCategory ------");
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders httpHeader = getHeader();
+		HttpEntity<String> entityHeader = new HttpEntity<String>(httpHeader);
+		ResponseEntity <String>response = restTemplate.exchange(
+				baseUrl + "/api/v1/private/category/"+id , HttpMethod.DELETE,
+				entityHeader, String.class);
+		log.trace("StatusCode="+response.getStatusCode());
+		log.trace("------ service deleteCategory complete------");
+
 	}
 }

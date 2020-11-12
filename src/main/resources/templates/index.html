@@ -82,8 +82,8 @@
 			</div>
 		</div>
 		<div class="container">
-			<a class="button is-primary" href="categoryList">Все категории</a> <a
-				class="button is-danger" href="categoryDeleteAll"><span>Delete</span>
+			<a class="button is-primary" href="/category/list">Все категории</a> <a
+				class="button is-danger" href="/category/deleteAll"><span>Delete</span>
 				<span class="icon is-small"> <i class="fas fa-trash"></i>
 			</span></a>
 		</div>
@@ -109,7 +109,7 @@
 						<td><a data-th-href="${category.description.name}">[[${category.description.name}]]</a></td>
 						<td data-th-text="${category.id}"></td>
 						<td data-th-text="${category.lineage}"></td>
-						<td><a data-th-href="@{/delete/{id}(id=${category.id})}"><span class="icon is-small"> <i
+						<td><a data-th-href="@{/category/delete/{id}(id=${category.id})}"><span class="icon is-small"> <i
 									class="fas fa-trash"></i>
 							</span></a></td>
 					</tr>
