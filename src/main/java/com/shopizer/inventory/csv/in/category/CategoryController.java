@@ -43,4 +43,14 @@ public class CategoryController {
 		model.addAttribute("categoryes", categoryImport.listCategory());
 		return("index");
 	}
+	
+	@GetMapping("/importXML")
+	public String importXML(Model model) {
+		log.debug("controller importXML");
+		categoryImport.importCategoryFromXML();
+//		log.debug("categoriesList.size="+categoriesList.size());
+//		model.addAttribute("categoryes", categoriesList);
+		return("index");
+	}
+
 }

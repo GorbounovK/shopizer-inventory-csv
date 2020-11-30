@@ -7,16 +7,13 @@
 
 <link data-th-href="@{/webjars/bulma/0.9.1/css/bulma.css}"
 	rel="stylesheet">
-<!-- <link rel="stylesheet"
-	data-th-href="@{/webjars/font-awesome/4.7.0/css/font-awesome.min.css}" /> -->
-<script src="https://use.fontawesome.com/releases/v5.15.1/js/all.js"></script>
 
-<link rel="stylesheet" type="text/css" data-th-href="@{/css/style.css}" />
+<link rel="stylesheet" type="text/css"
+	data-th-href="@{/css/style.css}" />
 <!--<script data-th-src="@{/webjars/timeago.js/3.0.0/dist/timeago.js}"></script> -->
 </head>
-<body>
-	<!-- 	<h1>Привет ProductImport 2</h1>
- -->
+<body class="has-background-light Site">
+
 	<section>
 		<div class="container">
 			<nav class="navbar is-fixed-top is-primary" role="navigation"
@@ -35,7 +32,7 @@
 				<div id="navbarBasicExample" class="navbar-menu">
 					<div class="navbar-start">
 						<a class="navbar-item" href="/"> Home </a> <a class="navbar-item">
-							Documentation </a>
+							Документация </a>
 
 						<div class="navbar-item has-dropdown is-hoverable">
 							<a class="navbar-link"> More </a>
@@ -82,42 +79,65 @@
 			</div>
 		</div>
 		<div class="container">
-			<a class="button is-primary" href="/category/list">Все категории</a> <a
-				class="button is-danger" href="/category/deleteAll"><span>Delete</span>
+			<a class="button is-primary" href="/category/list">Все категории</a>
+			<a class="button is-danger" href="/category/deleteAll"><span>Delete</span>
 				<span class="icon is-small"> <i class="fas fa-trash"></i>
 			</span></a>
+			<a class="button is-primary" href="/category/importXML">Импорт из XML</a>
 		</div>
 
 	</section>
-	<section>
-		<div class="container">
-			<table class="table is-hoverable is-fullwidth">
-				<thead>
-					<tr>
-						<th>Code</th>
-						<th>Name</th>
-						<th>id</th>
-						<th>lineage</th>
-						<th><span class="icon is-small"> <i
-								class="fas fa-trash"></i>
-						</span></th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr data-th-each="category : ${categoryes}">
-						<td data-th-text="${category.code}"></td>
-						<td><a data-th-href="${category.description.name}">[[${category.description.name}]]</a></td>
-						<td data-th-text="${category.id}"></td>
-						<td data-th-text="${category.lineage}"></td>
-						<td><a data-th-href="@{/category/delete/{id}(id=${category.id})}"><span class="icon is-small"> <i
+
+	<section class="section Site-content">
+<!-- 		<h1>Привет ProductImport 2</h1>
+ -->		<div class="columns ordered-mobile">
+			<div class="column is-2 fl-2">
+				<div class="has-text-centered">Sidebar</div>
+			</div>
+			<div class="column fl-1">
+				<table class="table is-hoverable is-fullwidth">
+					<thead>
+						<tr>
+							<th>Code</th>
+							<th>Name</th>
+							<th>id</th>
+							<th>lineage</th>
+							<th><span class="icon is-small"> <i
 									class="fas fa-trash"></i>
-							</span></a></td>
-					</tr>
-				</tbody>
-			</table>
+							</span></th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr data-th-each="category : ${categoryes}">
+							<td data-th-text="${category.code}"></td>
+							<td><a data-th-href="${category.description.name}">[[${category.description.name}]]</a></td>
+							<td data-th-text="${category.id}"></td>
+							<td data-th-text="${category.lineage}"></td>
+							<td><a
+								data-th-href="@{/category/delete/{id}(id=${category.id})}"><span
+									class="icon is-small"> <i class="fas fa-trash"></i>
+								</span></a></td>
+						</tr>
+					</tbody>
+				</table>
 
+			</div>
 		</div>
 	</section>
+	<footer class="footer">
+		<div class="content has-text-centered">
+			<p>
+				<strong>Bulma</strong> by <a href="https://jgthms.com">Jeremy
+					Thomas</a>. The source code is licensed <a
+					href="http://opensource.org/licenses/mit-license.php">MIT</a>. The
+				website content is licensed <a
+					href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY
+					NC SA 4.0</a>.
+			</p>
+		</div>
+	</footer>
+	<script defer
+		src="https://use.fontawesome.com/releases/v5.15.1/js/all.js"></script>
 
 </body>
 </html>

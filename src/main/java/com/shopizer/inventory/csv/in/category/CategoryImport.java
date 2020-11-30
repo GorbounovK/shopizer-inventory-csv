@@ -1,6 +1,7 @@
 package com.shopizer.inventory.csv.in.category;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -10,6 +11,10 @@ import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVRecord;
@@ -25,6 +30,11 @@ import org.springframework.http.ResponseEntity;
 //import org.springframework.security.crypto.codec.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
 import com.salesmanager.shop.model.entity.EntityExists;
 
 //import com.salesmanager.web.entity.catalog.category.Category;
@@ -231,6 +241,34 @@ public class CategoryImport {
 
 	}
 
+	public void importCategoryFromXML() {
+		try {
+			File fXmlFile = new File("export_prom.xml");
+			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+		    DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+		    Document doc = dBuilder.parse(fXmlFile);
+		
+		    doc.getDocumentElement().normalize();
+		    log.debug("Root :"+ doc.getDocumentElement().getNodeName());
+
+		    NodeList nList = doc.getElementsByTagName("category");
+		    for (int i = 0; i < nList.getLength(); i++) {
+				Node nNode = nList.item(i);
+				
+				log.debug("Category = " + nNode.getNodeName());
+				
+				if (nNode.getNodeType()==Node.ELEMENT_NODE) {
+					Element eElement = (Element) nNode;
+					log.debug("id = "+eElement.getAttribute("id"));
+					log.debug("parentId = "+eElement.getAttribute("parentId"));
+					log.debug("Наименование = "+nNode.getTextContent());
+				}
+			}
+		}catch (Exception e) {
+			log.error("error", e);
+		}
+	}
+	;
 	private void updateCategory(PersistableCategory mCategory ) {
 		log.debug(mCategory);
 	}
