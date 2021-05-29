@@ -25,11 +25,11 @@
 	</appenders>
 
 	<Loggers>
-		<Root level="info">
+		<Root level="infp">
 			<AppenderRef ref="STDOUT" />
 			<AppenderRef ref="rollingFile" />
 		</Root>
-		<Logger name="com.shopizer" level="trace" additivity="false">
+		<Logger name="com.shopizer" level="debug" additivity="false">
 			<AppenderRef ref="STDOUT" />
 			<AppenderRef ref="rollingFile" />
 		</Logger>

@@ -45,11 +45,6 @@ import com.salesmanager.shop.model.catalog.product.PersistableProductPrice;
 import com.salesmanager.shop.model.catalog.product.ProductDescription;
 import com.salesmanager.shop.model.catalog.product.ProductSpecification;
 import com.salesmanager.shop.model.entity.EntityExists;
-import com.salesmanager.shop.store.security.AuthenticationRequest;
-import com.salesmanager.shop.store.security.AuthenticationResponse;
-import com.shopizer.inventory.csv.in.PropertyManage;
-import com.shopizer.inventory.csv.in.manufacturer.ManufacturerImport;
-
 import lombok.extern.log4j.Log4j2;
 
 @Log4j2
