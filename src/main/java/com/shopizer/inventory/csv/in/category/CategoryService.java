@@ -9,4 +9,8 @@ public class CategoryService {
 	public void categoryGet() {
 		
 	}
+	
+	public void CategoryListById(int id) {
+		
+	}
 }

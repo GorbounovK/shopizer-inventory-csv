@@ -35,6 +35,14 @@ public class CategoryController {
 		model.addAttribute("categoryes", categoriesList);
 		return("index");
 	}
+	@GetMapping("/list/{id}")
+	public String categoryListById(@PathVariable("id") int id, Model model) {
+		log.debug("controller /category/list/"+id);
+		ReadableCategory category = categoryImport.listCategoryById(id);
+		log.debug("categoryListById.size="+category.toString());
+		model.addAttribute("categoryes", category);
+		return("index");
+	}
 	
 	@GetMapping("/delete/{id}")
 	public String categoryDelete(@PathVariable("id") int id, Model model) {

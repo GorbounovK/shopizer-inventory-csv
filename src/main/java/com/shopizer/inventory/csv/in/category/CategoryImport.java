@@ -270,7 +270,7 @@ public class CategoryImport {
 						baseUrl + "/api/v1/private/category/unique?code=" + category.getCode(), HttpMethod.GET,
 						entityHeader, EntityExists.class);
 
-				log.debug("status=" + responseUnique.getStatusCodeValue());
+				log.debug("StatusCode=" + responseUnique.getStatusCodeValue());
 				log.debug("isExists:" + responseUnique.getBody().isExists());
 
 				if (responseUnique.getBody().isExists()) {
@@ -417,6 +417,24 @@ public class CategoryImport {
 		log.trace("StatusCode=" + responseUnique.getStatusCode());
 		log.trace("RecordsTotal=" + responseUnique.getBody().getRecordsTotal());
 		return responseUnique.getBody().getCategories();
+	}
+
+	/**
+	 * 
+	 * @return Список категорий от указанного родителя
+	 */
+	public ReadableCategory listCategoryById(int id) {
+		log.debug("------ service listCategoryById ------");
+		RestTemplate restTemplate = new RestTemplate();
+		HttpHeaders httpHeader = getHeader();
+		HttpEntity<String> entityHeader = new HttpEntity<String>(httpHeader);
+		ResponseEntity<ReadableCategory> responseUnique = restTemplate.exchange(
+				baseUrl + "/api/v1/category/"+id+"?lang=ru", HttpMethod.GET, entityHeader,
+				ReadableCategory.class);
+		log.trace("Url=" + "/api/v1/category/"+id+"?lang=ru");
+		log.trace("StatusCode=" + responseUnique.getStatusCode());
+		log.trace("RecordsTotal=" + responseUnique.getBody().toString());
+		return responseUnique.getBody();
 	}
 
 	/**
