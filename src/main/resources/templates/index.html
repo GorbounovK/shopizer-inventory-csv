@@ -10,11 +10,13 @@
 
 	<link rel="stylesheet" type="text/css" data-th-href="@{/css/style.css}" />
 	<!--<script data-th-src="@{/webjars/timeago.js/3.0.0/dist/timeago.js}"></script> -->
+	<!-- 	<link rel="stylesheet" href="styles/style.css"> -->
+	<!-- 	<link rel="stylesheet" href="styles/debug.css"> -->
 </head>
 
 <body class="has-background-light Site">
 
-	<section>
+	<section class="section">
 		<div class="container">
 			<nav class="navbar is-fixed-top is-primary" role="navigation" aria-label="main navigation">
 				<div class="navbar-brand">
@@ -55,17 +57,6 @@
 				</div>
 			</nav>
 		</div>
-	</section>
-	<section class="section">
-		<!-- 		<div class="container">
-			<div class="content">
-				<h1>Parfumcenter2</h1>
-			</div>
-		</div>-->
-
-		<!--<div class="control">
-            <textarea class="textarea" rows="10" readonly>содержимое sod.log</textarea>
-        </div>-->
 		<div class="container">
 			<div class="tabs">
 				<ul>
@@ -75,6 +66,9 @@
 				</ul>
 			</div>
 		</div>
+	</section>
+
+	<section class="section is-danger">
 		<div class="container">
 			<a class="button is-primary" href="/category/list">Все категории</a>
 			<a class="button is-danger" href="/category/deleteAll"><span>Delete</span>
@@ -83,7 +77,6 @@
 			</a>
 			<a class="button is-primary" href="/category/importXML">Импорт из XML</a>
 		</div>
-
 	</section>
 
 	<section class="section Site-content">
